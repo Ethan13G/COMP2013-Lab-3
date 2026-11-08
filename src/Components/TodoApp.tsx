@@ -1,0 +1,77 @@
+import {useState, type ChangeEvent, type SubmitEvent} from "react";
+import FormComponent from "./FormComponent";
+import TodosContainer from "./TodosContainer";
+
+export interface TodoCardProps
+{
+    id: string;
+    title: string;
+    checked: boolean;
+}
+
+export interface TodosContainerProps
+{
+    todosList: TodoCardProps[];
+    handleToDocheck: (e: ChangeEvent<HTMLInputElement>, id: string) => void;
+}
+
+export interface FormComponentProps extends TodoCardProps
+{
+    handleFormOnChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    handleOnSubmit: (e: SubmitEvent<HTMLFormElement>) => void;
+}
+
+export default function TodoApp()
+{
+    // States
+    // A state to store the input change
+    // Once the submit button is click, the state will be stored 
+    // as a todo entry in a other state that will save a list of todo
+
+    const [todo, setTodo] = useState<TodoCardProps>
+    ({
+        id: "",
+        title: "",
+        checked: false,
+    });
+
+
+    // Second State: a state to store all the todos entry in one array
+
+    const [todosList, setTodosList] = useState<TodoCardProps[]>([]);
+
+    // Handlers
+
+    const handleFormOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setTodo((prevTodo) => ({...prevTodo, [e.target.name]: e.target.value}));
+    };
+
+    const handleOnSubmit = (e: SubmitEvent<HTMLFormElement) => {
+        e.preventDefault();
+        setTodosList((prevList) => [...prevList, {
+            id: crypto.randomUUID(),
+            title: todo.title,
+            checked: false,
+        }])
+        setTodo({
+            id: "",
+            title: "",
+            checked: false,
+        });
+    };
+
+    const handleTodoCheck = (e: ChangeEvent<HTMLInputElement>, id: string) => {
+        setTodosList((prevList) => prevList.map((entry) => entry.id === id?{...entry, checked:e.target.checked}: {...entry}))
+    }   
+
+    // Main Return
+
+    return (
+    <div>
+        <h1>Todo List App</h1>
+        <FormComponent {...todo} handleFormOnChange={handleFormOnChange}/>
+        <TodosContainer todosList={todosList}/>
+    </div>
+    )
+
+}
